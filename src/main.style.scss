@@ -1,0 +1,62 @@
+// Main styling for app. Classes and general tags to be reused
+
+// interactives
+.clickable {
+    &:hover { cursor: pointer; }
+}
+
+// layout
+.fullScreen {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+.col2 {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    .col {
+        display: inline-block;
+        &:nth-child(1) {
+            // side bar
+            width: 15%;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            position: fixed;
+            z-index: 5;
+            top: 0;
+            left: 0;
+        }
+        &:nth-child(2) {
+            // main content
+            width: 81%;
+            margin: 0;
+            padding: 1%;
+            right: 0;
+            position: absolute;
+        }
+    }
+}
+
+.half {
+    width: 50%;
+}
+
+
+// Buttons
+
+button {
+    border: none;
+    padding: .2rem;
+    font-size: .9rem;
+    font-family: sans-serif;
+    &:active {
+        outline: none;
+    }
+    &:hover {
+        cursor: pointer;
+        box-shadow: 0 0 .5rem black inset;
+    }
+}
