@@ -1,11 +1,36 @@
 <style lang="scss">
 .block li { display: block; }
+.controls {
+    background-color: black;
+    color: white;
+    width: 90%;
+    padding: 5%;
+    margin: 0;
+    li {
+        display: inline-block;
+        padding: 0;
+        margin: 0 2rem;
+        vertical-align: middle;
+    }
+}
+.headerImg {
+    width: 20%;
+}
 </style>
 <template>
 <section>
     <ul class="col2 block">
         <li class="col"><navigation /></li>
         <li class="col">
+            <img class="headerImg" src="./forestindex3.png"/>
+            <ul class="controls">
+                <li>
+                    Showing {{ users.length }} of {{ users.length }}
+                </li>
+                <li>
+                    <button v-on:click="addUser">Add User</button>
+                </li>
+            </ul>
             <user :states="states" :services="services" :categories="categories" v-on:refresh="getUsers" :key="user._id" v-for="user in users" :user="user"/>
         </li>
     </ul>
@@ -33,6 +58,27 @@ export default {
         user: user
     },
     methods: {
+        addUser: function() {
+            const newUser = {
+                username: '',
+                password: '',
+                active: true,
+                info: {
+                    images: [],
+                    description: '',
+                    businessName: '',
+                    phone: '',
+                    email: '',
+                    operationalCounties: [],
+                    address: {
+                        street: '',
+                        city: '',
+                        state: {},
+                    },
+                }
+            };
+            this.users.splice(0, 0, newUser);
+        },
         getUsers: async function() {
             const res = await this.$http.get(`${this.API_HOST}/api/allusers`);
             this.users = res.body.map((user) => user);

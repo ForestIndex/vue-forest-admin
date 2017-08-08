@@ -12,6 +12,11 @@
         vertical-align: top;
     }
 }
+.toggle {
+    &:hover {
+        cursor: pointer;
+    }
+}
 .info {
     width: 76%;
     margin: 1% 10%;
@@ -43,8 +48,8 @@
 <li class="user">
     <ul class="col2">
         <li>
-            <h2>{{ user.info.businessName }}</h2>
-            <h5>{{ user.username || info.email }}</h5>
+            <h2>{{ user.info.businessName || '' }}</h2>
+            <h5>{{ user.username || user.info.email }}</h5>
         </li>
         <li>
             <span class="active" v-if="user.active">Active <i class="fa fa-check" aria-hidden="true"></i></span>
@@ -75,9 +80,10 @@
         </select>
 
          <h4>Operational Counties</h4>
-        <select v-model="selectedCounties">
-            <option disabled>Select counties where this business operates</option>
-        </select> 
+        <h6 class="toggle" v-on:click="showCounties=!showCounties">{{ showCounties ? 'Hide' : 'Show' }} operational counties</h6>
+        <ul class="drop" v-if="showCounties">
+            <li v-for="county in currentCountOpts" v-on:click="selectCounty(county)">{{ county.name }} <i v-if="selectedCounties.indexOf(county._id) >= 0" class="fa fa-check" aria-hidden="true"></i></li>
+        </ul>
 
         <h4>Description</h4>
         <textarea type="text" v-model="user.info.description" placeholder="Enter a business description" />
@@ -124,7 +130,8 @@ export default {
             selectedCat: null,
             selectedState: this.user.info.address.state,
             currentCountOpts: [],
-            selectedCounties: []
+            selectedCounties: [],
+            showCounties: false
         };
     },
     watch: {
@@ -137,7 +144,12 @@ export default {
         },
         selectedState: function() {
             this.user.info.address.state = this.selectedState;
-            this.getCurrentCounties(); 
+            const ids = this.currentCountOpts.map((county) => county._id);
+            this.getCurrentCounties();
+            this.selectedCounties.forEach((c) => {
+                const idx = ids.indexOf(c._id);
+                if (idx < 0) this.selectedCounties.splice(idx, 1);
+            });
         },
         selectedCounties: function() {
             this.user.info.operationalCounties = this.selectedCounties;
@@ -165,25 +177,41 @@ export default {
             payload._service = this.user._service._id;
             payload._category = this.user._category._id;
             payload.info.address.state = this.user.info.address.state._id;
+            payload.info.operationalCounties = this.selectedCounties;
             const headers = { 'Content-Type': 'applications/json' };
-            this.$http.post(`${this.host}/api/users/${this.user._id}`, payload, headers)
+            const id = this.user._id ? this.user._id : '';
+            this.$http.post(`${this.host}/api/users/${id}`, payload, headers)
             .then((data) => this.$emit('refresh'));
         },
         getCurrentCounties: async function() {
             const res = await this.$http.get(`${this.host}/api/states/${this.user.info.address.state._id}/counties`);
             this.currentCountOpts = res.body.map((county) => county);
         },
+        selectCounty: function(county) {
+            const id = county._id;
+            if (this.selectedCounties.indexOf(id) <= -1) {
+                this.selectedCounties.push(id);
+            } else {
+                const idx = this.selectedCounties.indexOf(id);
+                this.selectedCounties.splice(idx, 1);
+            }
+        },
         start: function() {
             this.currentCatOpts = this.categories.filter((cat) => cat._service === this.selectedService._id);
             this.selectedCat = this.user._category;
-            this.selectedState = this.user.info.address.state;
+            this.selectedState = this.user.info.address.state;            
             this.getCurrentCounties();
+            if (this.user.info.operationalCounties) {
+                this.selectedCounties = this.user.info.operationalCounties.map((county) => county._id);
+            } else {
+                this.selectedCounties = [];
+            }
         }
     },
     created: function() {
         const e = env();
         this.host = `${e.API_HOST}`;
-        this.start();
+        if (this.user.info.businessName) this.start();
     }
 }
 </script>
