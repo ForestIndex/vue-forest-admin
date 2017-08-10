@@ -25,7 +25,12 @@ const routes = [
      path: '/login',
      component: require('./components/login.vue'),
      name: 'login'
-   }
+   },
+    {
+      path: '/services',
+      component: require('./components/services.vue'),
+      name: 'services'
+    }
 ];
 
 const router = new VueRouter({

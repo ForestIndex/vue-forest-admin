@@ -40,7 +40,6 @@
 import navigation from './navigation.vue';
 import env from '../env';
 import user from './userBlock.vue';
-// import auth from '../toolbox/authorize';
 
 export default {
     data: () => {
@@ -98,7 +97,6 @@ export default {
             this.states = res.body.map((state) => state);
             return Promise.resolve();
         },
-        // auth,
         controller: function() {
             return Promise.resolve()
             .then(() => this.getServices())

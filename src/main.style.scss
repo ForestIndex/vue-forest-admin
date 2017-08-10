@@ -60,3 +60,11 @@ button {
         box-shadow: 0 0 .5rem black inset;
     }
 }
+
+.submit {
+    background-color: rgb(20.9%, 74.5%, 7.5%);
+    color: white;
+    &:hover {
+        background-color: rgb(16.4%, 64.8%, 4.2%);
+    }
+}

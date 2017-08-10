@@ -43,12 +43,18 @@
     font-size: .7rem;
     color: gray;
 }
+.error {
+    border: .1rem solid rgb(87.4%, 24.5%, 24.5%);
+}
+.green {
+    color: rgb(21.3%, 74.9%, 7.8%);
+}
 </style>
 <template>
 <li class="user">
     <ul class="col2">
         <li>
-            <h2>{{ user.info.businessName || '' }}</h2>
+            <h2>{{ user.info.businessName || 'New Business User' }}</h2>
             <h5>{{ user.username || user.info.email }}</h5>
         </li>
         <li>
@@ -62,40 +68,40 @@
     </ul>
     <div v-if="showInfo" class="info">
         <h4>Business Name</h4>
-        <input type="text" v-model="user.info.businessName" placeholder="Enter a business name" />
+        <input :class="{ error: errBusName }" type="text" v-model="user.info.businessName" placeholder="Enter a business name" />
 
         <h4>Phone</h4>
-        <input type="text" v-model="user.info.phone" placeholder="Business contact phone" />
+        <input :class="{ error: errPhone }" type="text" v-model="user.info.phone" placeholder="Business contact phone" />
         
         <h4>Email</h4>
-        <input type="text" v-model="user.info.email" placeholder="Business email address" />
+        <input :class="{ error: errEmail }" type="text" v-model="user.info.email" placeholder="Business email address" />
 
         <h4>Address</h4>
-        <input type="text" v-model="user.info.address.street" placeholder="Street address" />
-        <input type="text" v-model="user.info.address.city" placeholder="City" />
-        <input type="text" v-model="user.info.address.zip" placeholder="Zipcode" />
-        <select v-model="selectedState">
+        <input :class="{ error: errStreet }" type="text" v-model="user.info.address.street" placeholder="Street address" />
+        <input :class="{ error: errCity }" type="text" v-model="user.info.address.city" placeholder="City" />
+        <input :class="{ error: errZip }" type="text" v-model="user.info.address.zip" placeholder="Zipcode" />
+        <select :class="{ error: errState }" v-model="selectedState">
             <option disabled><span class="el-dropdown-link">Select a state</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
             <option v-for="state in states" :value="state">{{ state.name }}</option>
         </select>
 
          <h4>Operational Counties</h4>
         <h6 class="toggle" v-on:click="showCounties=!showCounties">{{ showCounties ? 'Hide' : 'Show' }} operational counties</h6>
-        <ul class="drop" v-if="showCounties">
-            <li v-for="county in currentCountOpts" v-on:click="selectCounty(county)">{{ county.name }} <i v-if="selectedCounties.indexOf(county._id) >= 0" class="fa fa-check" aria-hidden="true"></i></li>
+        <ul :class="{ error: errCounties }" class="drop" v-if="showCounties">
+            <li v-for="county in currentCountOpts" v-on:click="selectCounty(county)">{{ county.name }} <i v-if="selectedCounties.indexOf(county._id) >= 0" class="fa fa-check green" aria-hidden="true"></i></li>
         </ul>
 
         <h4>Description</h4>
-        <textarea type="text" v-model="user.info.description" placeholder="Enter a business description" />
+        <textarea :class="{ error: errDescr }" type="text" v-model="user.info.description" placeholder="Enter a business description" />
 
          <h4>Service</h4>
-         <select v-model="selectedService">
+         <select :class="{ error: errService }" v-model="selectedService">
             <option disabled><span class="el-dropdown-link">Select a service</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
             <option v-for="service in services" :value="service">{{ service.name }}</option>
         </select>
 
         <h4>Category</h4>
-         <select v-model="selectedCat">
+         <select :class="{ error: errCategory }" v-model="selectedCat">
             <option disabled><span class="el-dropdown-link">Select a category</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
             <option v-for="category in currentCatOpts" :value="category">{{ category.name || "none" }}</option>
         </select>
@@ -109,10 +115,8 @@
             </el-dropdown-menu>
         </el-dropdown> -->
     </div>
-    <button v-on:click="showInfo=!showInfo">
-        <span v-if="!showInfo">Edit Info</span>
-        <span v-if="showInfo" v-on:click="saveChanges">Save</span>
-    </button>
+    <button v-if="!showInfo" v-on:click="showInfo=!showInfo">Edit Info</button>
+    <button :class="{ error: badSubmit }" v-if="showInfo" v-on:click="saveChanges">Save Changes</button>
     <button v-if="showInfo" v-on:click="refresh">Refresh</button>
     <span class="clickable small" v-if="showInfo" v-on:click="showInfo=false">Hide Info</span>
 </li>
@@ -131,7 +135,8 @@ export default {
             selectedState: this.user.info.address.state,
             currentCountOpts: [],
             selectedCounties: [],
-            showCounties: false
+            showCounties: false,
+            badSubmit: false
         };
     },
     watch: {
@@ -156,6 +161,18 @@ export default {
         },
         user: function() {
             this.start();
+        },
+        'user.info.businessName': function() {
+            this.errBusName = false;
+            this.badSubmit = false;
+        },
+        'user.info.address.city': function() {
+            this.errCity = false;
+            this.badSubmit = false;
+        },
+        'user.info.address.zip': function() {
+            this.errZip = false;
+            this.badSubmit = false;
         }
     },
     props: [
@@ -172,16 +189,50 @@ export default {
         refresh: function() {
             this.$emit('refresh');
         },
+        validateForm: function() {
+            if (!this.user.info.businessName || this.user.info.businessName.length < 1) {
+                this.errBusName = true;
+                return false;
+            } else if (!this.user.info.address.city || this.user.info.address.city.length < 1) {
+                this.errCity = true;
+                return false;
+            } else if(!this.user.info.address.zip) {
+                this.errZip = true;
+                return false;
+            } else if (!this.user.info.description) {
+                this.errDescr = true;
+                return false;
+            } else if (!this.user.info.address.state._id) {
+                this.errState = true;
+                return false;
+            } else if (!this.user._service._id) {
+                this.errService = true;
+                return false;
+            } else if (!this.user._category._id) {
+                this.errCategory = true;
+                return false;
+            } else if (this.user.info.operationalCounties.length === 0) {
+                this.errCounties = true;
+                return false;
+            }
+            return true;
+        },
         saveChanges: function() {
-            const payload = this.user;
-            payload._service = this.user._service._id;
-            payload._category = this.user._category._id;
-            payload.info.address.state = this.user.info.address.state._id;
-            payload.info.operationalCounties = this.selectedCounties;
-            const headers = { 'Content-Type': 'applications/json' };
-            const id = this.user._id ? this.user._id : '';
-            this.$http.post(`${this.host}/api/users/${id}`, payload, headers)
-            .then((data) => this.$emit('refresh'));
+            const validForm = this.validateForm();
+            // console.log(this.user);
+            if (validForm) {
+                const payload = this.user;
+                payload._service = this.user._service._id;
+                payload._category = this.user._category._id;
+                payload.info.address.state = this.user.info.address.state._id;
+                payload.info.operationalCounties = this.selectedCounties;
+                const headers = { 'Content-Type': 'applications/json' };
+                const id = this.user._id ? this.user._id : '';
+                this.$http.post(`${this.host}/api/users/${id}`, payload, headers)
+                .then((data) => this.$emit('refresh'));
+            } else {
+                this.badSubmit = true;
+            }
         },
         getCurrentCounties: async function() {
             const res = await this.$http.get(`${this.host}/api/states/${this.user.info.address.state._id}/counties`);
@@ -199,7 +250,12 @@ export default {
         start: function() {
             this.currentCatOpts = this.categories.filter((cat) => cat._service === this.selectedService._id);
             this.selectedCat = this.user._category;
-            this.selectedState = this.user.info.address.state;            
+            const sc = {
+                _id: 90,
+                name: "South Carolina",
+                abbreviation: "SC"
+            };
+            this.selectedState = this.user.info.address.state || sc;            
             this.getCurrentCounties();
             if (this.user.info.operationalCounties) {
                 this.selectedCounties = this.user.info.operationalCounties.map((county) => county._id);

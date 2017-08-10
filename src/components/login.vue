@@ -26,7 +26,7 @@
         <h3>Forest Index Admin Login</h3>
         <input type="text" v-model="login.username" placeholder="Email or username" />
         <input type="password" v-model="login.password" placeholder="Password" />
-        <button v-on:click="submit" >Login</button>
+        <button class="submit" v-on:click="submit" >Login</button>
         <span v-if="badLogin" class="error">Invalid username or passowrd</span>
     </form>
 </section>
