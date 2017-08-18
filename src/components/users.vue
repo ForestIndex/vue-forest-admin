@@ -16,6 +16,11 @@
 .headerImg {
     width: 20%;
 }
+.spinner {
+    margin: 0 40%;
+    padding: 0;
+    width: 20%;
+}
 </style>
 <template>
 <section>
@@ -31,6 +36,7 @@
                     <button v-on:click="addUser">Add User</button>
                 </li>
             </ul>
+            <img v-if="loading" class="spinner" src="./loading_wheel.gif" alt="loading..."/>
             <user :states="states" :services="services" :categories="categories" v-on:refresh="getUsers" :key="user._id" v-for="user in users" :user="user"/>
         </li>
     </ul>
@@ -44,6 +50,7 @@ import user from './userBlock.vue';
 export default {
     data: () => {
         return {
+            loading: true,
             users: [],
             services: [],
             categories: [],
@@ -79,8 +86,16 @@ export default {
             this.users.splice(0, 0, newUser);
         },
         getUsers: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/allusers`);
-            this.users = res.body.map((user) => user);
+            this.$http.get(`${this.API_HOST}/api/allusers`)
+            .then((res) => {
+                if (res.ok) {
+                    this.users = res.body.map((user) => user);
+                    this.loading = false;
+                }
+                else this.$router.push('login');
+            }, (res) => {
+                this.$router.push('login');
+            });
         },
         getServices: async function() {
             const res = await this.$http.get(`${this.API_HOST}/api/services`);
@@ -108,9 +123,7 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        const token = this.$cookies.get('forestryservices');
-        if (!token) this.$router.push('login');
-        else this.controller();
+        this.controller();
     }
 }
 </script>

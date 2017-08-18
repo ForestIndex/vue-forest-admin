@@ -28,8 +28,6 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        const token = this.$cookies.get('forestryservices');
-        if (!token) this.$router.push('login');
         // start command
     }
 }
