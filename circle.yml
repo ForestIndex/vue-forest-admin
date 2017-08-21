@@ -1,8 +1,6 @@
 machine:
   node:
     version: 6.11.0
-  environment:
-    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
   post:
     - aws s3 cp s3://forest-index-devops/configs/env.js src/
 dependencies:
@@ -13,9 +11,10 @@ dependencies:
 
 compile:
   override:
-    - yarn
-    - yarn init
-    - yarn build:prod
+    - |
+      yarn
+      yarn init
+      yarn build:prod
 
 test:
   override:
