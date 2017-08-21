@@ -45,6 +45,7 @@
 }
 .error {
     border: .1rem solid rgb(87.4%, 24.5%, 24.5%);
+    width: 10%;
 }
 .green {
     color: rgb(21.3%, 74.9%, 7.8%);
@@ -82,13 +83,13 @@
         <input :class="{ error: errZip }" type="text" v-model="user.info.address.zip" placeholder="Zipcode" />
         <select :class="{ error: errState }" v-model="selectedState">
             <option disabled><span class="el-dropdown-link">Select a state</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
-            <option v-for="state in states" :value="state">{{ state.name }}</option>
+            <option v-bind:key="state._id" v-for="state in states" :value="state">{{ state.name }}</option>
         </select>
 
          <h4>Operational Counties</h4>
         <h6 class="toggle" v-on:click="showCounties=!showCounties">{{ showCounties ? 'Hide' : 'Show' }} operational counties</h6>
         <ul :class="{ error: errCounties }" class="drop" v-if="showCounties">
-            <li v-for="county in currentCountOpts" v-on:click="selectCounty(county)">{{ county.name }} <i v-if="selectedCounties.indexOf(county._id) >= 0" class="fa fa-check green" aria-hidden="true"></i></li>
+            <li  v-bind:key="county._id" v-for="county in currentCountOpts" v-on:click="selectCounty(county)">{{ county.name }} <i v-if="selectedCounties.indexOf(county._id) >= 0" class="fa fa-check green" aria-hidden="true"></i></li>
         </ul>
 
         <h4>Description</h4>
@@ -119,6 +120,7 @@
     <button :class="{ error: badSubmit }" v-if="showInfo" v-on:click="saveChanges">Save Changes</button>
     <button v-if="showInfo" v-on:click="refresh">Refresh</button>
     <span class="clickable small" v-if="showInfo" v-on:click="showInfo=false">Hide Info</span>
+    <span class="green" v-if="saved">Saved Changes <i class="fa fa-check" aria-hidden="true"></i></span>
 </li>
 </template>
 <script>
@@ -127,6 +129,7 @@ import env from '../env';
 export default {
     data: function() {
         return {
+            token: null,
             showInfo: false,
             host: '',
             currentCatOpts: [],
@@ -136,7 +139,8 @@ export default {
             currentCountOpts: [],
             selectedCounties: [],
             showCounties: false,
-            badSubmit: false
+            badSubmit: false,
+            saved: false
         };
     },
     watch: {
@@ -227,12 +231,22 @@ export default {
                 payload.info.address.state = this.user.info.address.state._id;
                 payload.info.operationalCounties = this.selectedCounties;
                 const headers = { 'Content-Type': 'applications/json' };
-                const id = this.user._id ? this.user._id : '';
-                this.$http.post(`${this.host}/api/users/${id}`, payload, headers)
-                .then((data) => this.$emit('refresh'));
+                const id = this.user._id ? `${this.user._id}/` : '';
+                const token = `?token=${this.token}`;
+                this.$http.post(`${this.host}/api/users/${id}${token}`, payload, headers)
+                .then((data) => {
+                    this.showSave();
+                    this.$emit('refresh');
+                });
             } else {
                 this.badSubmit = true;
             }
+        },
+        showSave: function() {
+            this.saved = true;
+            setTimeout(() => {
+                this.saved = false;
+            }, 2000);
         },
         getCurrentCounties: async function() {
             const res = await this.$http.get(`${this.host}/api/states/${this.user.info.address.state._id}/counties`);
@@ -267,6 +281,7 @@ export default {
     created: function() {
         const e = env();
         this.host = `${e.API_HOST}`;
+        this.token = this.$cookies.get('forestryservices');
         if (this.user.info.businessName) this.start();
     }
 }

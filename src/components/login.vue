@@ -80,7 +80,7 @@ export default {
                     const dt = new Date();
                     dt.setDate(dt.getDate() + 1);
 
-                    this.$cookies.set('forestryservices',res.body.token, dt);
+                    this.$cookies.set('forestryservices', res.body.token, dt);
                     setTimeout(() => {
                         this.$router.push('users');
                     }, 2000);

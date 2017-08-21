@@ -50,6 +50,7 @@ import user from './userBlock.vue';
 export default {
     data: () => {
         return {
+            token: null,
             loading: true,
             users: [],
             services: [],
@@ -86,7 +87,7 @@ export default {
             this.users.splice(0, 0, newUser);
         },
         getUsers: async function() {
-            this.$http.get(`${this.API_HOST}/api/allusers`)
+            this.$http.get(`${this.API_HOST}/api/allusers?token=${this.token}`)
             .then((res) => {
                 if (res.ok) {
                     this.users = res.body.map((user) => user);
@@ -123,6 +124,7 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
+        this.token = this.$cookies.get('forestryservices');
         this.controller();
     }
 }

@@ -28,7 +28,7 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        // start command
+        // this.token = this.$cookies.get('forestryservices');
     }
 }
 </script>

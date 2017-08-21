@@ -9,7 +9,7 @@
             <img class="headerImg" src="./forestindex3.png"/>
             <span class="small">{{ services.length }} Services </span><button class="submit" v-on:click="addService">Add Service</button>
             <ul>
-                <service v-for="serv in services" :service="serv" v-on:refresh="getServices"/>
+                <service v-bind:key="serv._id" v-for="serv in services" :service="serv" v-on:refresh="getServices"/>
             </ul>
         </li>
     </ul>

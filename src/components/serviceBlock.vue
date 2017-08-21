@@ -43,7 +43,7 @@
         <ul v-if="showCategories">
             <div v-if="categories.length === 0">This service does not have any categries.</div>
             <button class="submit center" v-on:click="categories.push({ _service: service._id })">Add Category</button>
-            <category v-for="cat in categories" :category="cat" v-on:refresh="getCategories" /> 
+            <category v-bind:key="cat._id" v-for="cat in categories" :category="cat" v-on:refresh="getCategories" /> 
         </ul>
         <ul class="arrows">
             <li>
@@ -68,6 +68,7 @@ export default {
     },
     data: () => {
         return {
+            token: null,
             API_HOST: null,
             showCategories: false,
             categories: [],
@@ -101,7 +102,7 @@ export default {
         },
         deleteService: async function() {
             if (this.service._id) {
-                const res = await this.$http.delete(`${this.API_HOST}/api/services/${this.service._id}`);
+                const res = await this.$http.delete(`${this.API_HOST}/api/services/${this.service._id}?token=${this.token}`);
                 if (!res.ok || res.status >= 400) {
                     alert('There was an issue deleting service.');
                 }
@@ -112,10 +113,10 @@ export default {
             let res;
             if (this.service._id && this.service._id >= 0) {
                 // update
-                res = await this.$http.put(`${this.API_HOST}/api/services/${this.service._id}`, this.service);
+                res = await this.$http.put(`${this.API_HOST}/api/services/${this.service._id}/?token=${this.token}`, this.service);
             } else {
                 // create new
-                res = await this.$http.post(`${this.API_HOST}/api/services`, this.service);
+                res = await this.$http.post(`${this.API_HOST}/api/services?token=${this.token}`, this.service);
             }
             if (res.ok || res.status >= 200) {
                 this.notifyShowChanges();
@@ -129,8 +130,7 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        const token = this.$cookies.get('forestryservices');
-        if (!token) this.$router.push('login');
+        this.token = this.$cookies.get('forestryservices');
         this.getCategories();
     }
 }
