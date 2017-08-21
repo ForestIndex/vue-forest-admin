@@ -11,10 +11,9 @@ dependencies:
 
 compile:
   override:
-    - |
-      yarn
-      yarn init
-      yarn build:prod
+    - yarn
+    - yarn init
+    - yarn build:prod
 
 test:
   override:
