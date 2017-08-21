@@ -24,5 +24,5 @@ deployment:
   production:
     branch: master
     commands:
-      - aws s3 cp dist --recursive --storage-class REDUCED_REDUNDANCY --metadata-directive REPLACE --cache-control max-age=300 --acl public-read
+      - aws s3 cp dist s3://admin.forestindex.com --recursive --storage-class REDUCED_REDUNDANCY --metadata-directive REPLACE --cache-control max-age=300 --acl public-read
   
