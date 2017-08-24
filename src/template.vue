@@ -22,13 +22,14 @@ export default {
     },
     data: () => {
         return {
+            token: null,
             API_HOST: null
         };
     },
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        // this.token = this.$cookies.get('forestryservices');
+        this.token = this.$cookies.get('forestryservices');
     }
 }
 </script>

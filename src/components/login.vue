@@ -14,7 +14,11 @@
     width: 50%;
     margin: 5% 25%;
     padding: 3% 0;
-    background-color: gray;
+    background-color: black;
+    opacity: .8;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: .11rem;
     h3 {
         color: white;
     }
@@ -28,6 +32,12 @@
         vertical-align: middle;
     }
 }
+.wide {
+    width: 80%;
+    margin: .1% 9%;
+    padding: 1%;
+    text-align: center;
+}
 </style>
 <template>
 <section class="fullScreen">
@@ -39,7 +49,7 @@
         <h5 v-if="badLogin" class="error">Invalid Credentials</h5>
         <h5 class="error">{{ errMessage }}</h5>
 
-        <button class="submit" v-on:click="submit" >Login</button>
+        <button class="submit wide" v-on:click="submit" >Login</button>
         <img v-if="loading" src="./loading_wheel.gif" alt="loading..."/>
     </form>
 </section>
@@ -71,19 +81,34 @@ export default {
         }
     },
     methods: {
+        setCookie: function(token) {
+            return new Promise((resolve, reject) => {
+                const dt = new Date();
+                dt.setDate(dt.getDate() + 1);
+                this.$cookies.set('forestryservices', token, dt);
+                setTimeout(() => {
+                    const cookie = this.$cookies.isKey('forestryservices');
+                    if (!cookie) {
+                        reject();
+                    } else {
+                        resolve(cookie);
+                    }
+                }, 500);
+            });
+        },
         submit: async function() {
             this.loading = true;
             const url = `${this.host}/api/login`;
             this.$http.post(url, this.login)
             .then((res) => {
                 if (res.body.token && res.ok) {
-                    const dt = new Date();
-                    dt.setDate(dt.getDate() + 1);
-
-                    this.$cookies.set('forestryservices', res.body.token, dt);
-                    setTimeout(() => {
+                    this.setCookie(res.body.token)
+                    .then((token) => {
                         this.$router.push('users');
-                    }, 2000);
+                    })
+                    .catch(() => {
+                        this.badLogin = true;
+                    });
                 } else {
                     this.badLogin = true;
                     this.loading = false;

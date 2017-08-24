@@ -76,7 +76,8 @@ export default {
         return {
             API_HOST: null,
             editName: false,
-            showSaved: false
+            showSaved: false,
+            token: null
         };
     },
     props: [
@@ -90,9 +91,9 @@ export default {
             let res;
             // If the category doesn't exist, create one
             if (!this.category._id) {
-                res = await this.$http.post(`${this.API_HOST}/api/categories`, this.category);
+                res = await this.$http.post(`${this.API_HOST}/api/categories?token=${this.token}`, this.category);
             } else {
-                res = await this.$http.put(`${this.API_HOST}/api/categories/${this.category._id}`, this.category);
+                res = await this.$http.put(`${this.API_HOST}/api/categories/${this.category._id}?token=${this.token}`, this.category);
             }
             if (res.ok || res.status === 200) {
                 this.notifySaved();
@@ -124,8 +125,8 @@ export default {
     created: function() {
         const e = env();
         this.API_HOST = e.API_HOST;
-        const token = this.$cookies.get('forestryservices');
-        if (!token) this.$router.push('login');
+        this.token = this.$cookies.get('forestryservices');
+        if (!this.token) this.$router.push('login');
     }
 }
 </script>

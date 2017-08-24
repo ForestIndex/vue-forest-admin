@@ -1,5 +1,8 @@
 // Main styling for app. Classes and general tags to be reused
 
+$green: #428842;
+$gray: #707068;
+
 // interactives
 .clickable {
     &:hover { cursor: pointer; }
@@ -53,19 +56,26 @@ button {
     font-size: .9rem;
     font-family: sans-serif;
     transition-duration: .2s;
+    background-color: #dbdbdb;
     &:active {
         outline: none;
     }
     &:hover {
         cursor: pointer;
-        box-shadow: 0 0 .5rem black inset;
+        box-shadow: 0 0 .1rem black inset;
     }
 }
 
 .submit {
-    background-color: rgb(20.9%, 74.5%, 7.5%);
+    background-color: $green;
     color: white;
     &:hover {
         background-color: rgb(16.4%, 64.8%, 4.2%);
     }
+}
+
+select {
+    border: none;
+    background-color: $gray;
+    color: white;
 }

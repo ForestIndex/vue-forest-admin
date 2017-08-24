@@ -19,16 +19,26 @@
         background-color: gray;
     }
 }
+@media(max-width: 1080px) {
+    #nav {
+        li {
+            font-size: .9rem;
+        }
+    }
+    // .side-panel {
+    //     width: 500%;
+    // }
+}
 </style>
 <template>
-<span>
+<div class="side-panel" v-bind:class="">
     <!-- put bars here for mobile -->
     <ul id="nav">
         <li :class="{ currentScreen: users }" v-on:click="go('users')">Business Users</li>
         <li :class="{ currentScreen: services }" v-on:click="go('services')">Services and Categories</li>
         <li :class="{ currentScreen: settings }" v-on:click="go('settings')">My Settings</li>
     </ul>
-</span>
+</div>
 </template>
 <script>
 export default {
@@ -49,7 +59,14 @@ export default {
             case 'users':
                 this.users = true;
                 break;
+            case 'services':
+                this.services = true;
+                break;
+            case 'settings':
+                this.settings = true;
+                break;
             default:
+                this.users = true;
                 break;
         }
     }

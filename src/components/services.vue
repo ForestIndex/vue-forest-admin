@@ -1,9 +1,12 @@
 <style lang="scss">
-
+.left {
+    padding-left: 0;
+    margin-left: 0;
+}
 </style>
 <template>
 <section>
-    <ul class="col2 block">
+    <ul class="col2 block left">
         <li class="col"><navigation /></li>
         <li class="col">
             <img class="headerImg" src="./forestindex3.png"/>

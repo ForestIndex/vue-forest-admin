@@ -30,6 +30,11 @@ const routes = [
       path: '/services',
       component: require('./components/services.vue'),
       name: 'services'
+    },
+    {
+      path: '/settings',
+      component: require('./components/settings.vue'),
+      name: 'settings'
     }
 ];
 
