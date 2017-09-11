@@ -16,6 +16,7 @@ jobs:
       - run:
           name: Get Config File
           command: aws s3 cp s3://bluecactus-devops/forestindex/configs/env.js src/
+      - run: yarn
       - run:
           name: Build
           command: yarn build:prod
