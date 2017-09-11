@@ -1,0 +1,37 @@
+defaults: &defaults
+  working_directory: ~/forestindexapi
+  docker:
+    # custom docker image to run commands in. Thanks Rhinogram, LLC
+    - image: rhinogram/node-awscli:latest
+
+
+version: 2
+jobs:
+
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Get Config File
+          command: aws s3 cp s3://bluecactus-devops/forestindex/configs/env.js src/
+      - run:
+          name: Build
+          command: yarn build:prod
+      - run:
+          name: Deploy
+          command: |
+            aws s3 cp dist s3://admin.forestindex.com/ --acl public-read
+            aws s3 sync dist s3://admin.forestindex.com
+
+workflows:
+version: 2
+
+  deploy_prod:
+    jobs:
+      deploy:
+        filters:
+          branches:
+            only:
+              - master

@@ -106,13 +106,13 @@ $red: rgb(87.4%, 24.5%, 24.5%);
          <h4>Service</h4>
          <select :class="{ errSubmit: errService }" v-model="selectedService">
             <option disabled><span class="el-dropdown-link">Select a service</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
-            <option v-for="service in services" :value="service">{{ service.name }}</option>
+            <option :key="service._id" v-for="service in services" :value="service">{{ service.name }}</option>
         </select>
 
         <h4>Category</h4>
          <select :class="{ errSubmit: errCategory }" v-model="selectedCat">
             <option disabled><span class="el-dropdown-link">Select a category</span><i class="el-icon-caret-bottom el-icon--right"></i></option>
-            <option v-for="category in currentCatOpts" :value="category">{{ category.name || "none" }}</option>
+            <option :key="category._id" v-for="category in currentCatOpts" :value="category">{{ category.name || "none" }}</option>
         </select>
 
          <!-- <el-dropdown>
@@ -123,6 +123,17 @@ $red: rgb(87.4%, 24.5%, 24.5%);
                 <el-dropdown-item v-for="service in services">{{ service.name }}</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown> -->
+
+        <ul class="arrows">
+            <li>
+                <i class="fa fa-arrow-up" aria-hidden="true" v-on:click="move('up')"></i>
+            </li>
+            <li class="small">order: {{ user.order + 1 || 'NA' }}</li>
+            <li>
+                <i class="fa fa-arrow-down" aria-hidden="true" v-on:click="move('down')"></i>
+            </li>
+        </ul>
+
     </div>
     <button v-if="!showInfo" v-on:click="showInfo=!showInfo">Edit Info</button>
     <button :class="{ errSubmit: badSubmit }" v-if="showInfo" v-on:click="saveChanges">Save Changes</button>
@@ -230,7 +241,7 @@ export default {
             } else if (!this.user.info.address.city || this.user.info.address.city.length < 1) {
                 this.errCity = true;
                 return false;
-            } else if(!this.user.info.address.zip) {
+            } else if (!this.user.info.address.zip) {
                 this.errZip = true;
                 return false;
             } else if (!this.user.info.address.state || !this.user.info.address.state._id) {
@@ -242,9 +253,6 @@ export default {
             } else if (!this.user._service || !this.user._service._id) {
                 this.errService = true;
                 return false;
-            // } else if (!this.user._category || !this.user._category._id) {
-            //     this.errCategory = true;
-            //     return false;
             } else if (this.user.info.operationalCounties.length === 0) {
                 this.errCounties = true;
                 return false;
@@ -268,7 +276,6 @@ export default {
                 const id = !!this.user._id ? `/${this.user._id}` : '';
                 const token = `?token=${this.token}`;
                 const url = `${this.host}/api/users${id}${token}`;
-                console.log(url);
 
                 this.$http.post(url, payload, headers)
                 .then((res) => {
@@ -298,6 +305,13 @@ export default {
             } else {
                 const idx = this.selectedCounties.indexOf(id);
                 this.selectedCounties.splice(idx, 1);
+            }
+        },
+        move: function(direction) {
+            if (direction === 'up') {
+                this.user.order = this.user.order === 0 ? 0 : this.user.order - 1;
+            } else if (direction === 'down') {
+                this.user.order += 1;
             }
         },
         start: function() {
