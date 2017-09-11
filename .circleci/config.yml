@@ -30,8 +30,8 @@ workflows:
 
   deploy_prod:
     jobs:
-      deploy:
-        filters:
-          branches:
-            only:
-              - master
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
