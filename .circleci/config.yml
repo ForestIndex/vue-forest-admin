@@ -8,7 +8,7 @@ defaults: &defaults
 version: 2
 jobs:
 
-  build:
+  deploy:
     <<: *defaults
     steps:
       - checkout
@@ -26,11 +26,11 @@ jobs:
             aws s3 sync dist s3://admin.forestindex.com
 
 workflows:
-version: 2
+  version: 2
 
   deploy_prod:
     jobs:
-      build:
+      deploy:
         filters:
           branches:
             only:
