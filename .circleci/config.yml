@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Deploy
           command: |
-            aws s3 cp dist s3://admin.forestindex.com/ --acl public-read
+            aws s3 cp dist s3://admin.forestindex.com/ --recursive --storage-class REDUCED_REDUNDANCY --metadata-directive REPLACE --cache-control max-age=31536000 --acl public-read
             aws s3 sync dist s3://admin.forestindex.com
 
 workflows:
