@@ -9,7 +9,7 @@
   "scripts": {
     "build:dev": "NODE_ENV=developement watchify -p browserify-hmr -t [ babelify --presets [ es2015 ] ] -t [ vueify ] -e src/app.js -o dist/index.js",
     "build:prod": "NODE_ENV=production browserify -g envify -t [ babelify --presets [ es2015] ] -t [ vueify ] -e ./src/app.js -o ./dist/index.js",
-    "start": "yarn style & yarn build:dev & cd dist && serve",
+    "start": "yarn style & yarn build:dev & serve dist",
     "init": "touch ./dist/index.js && cp stc/index.html ./dist/index.html",
     "style": "node-sass src/main.style.scss dist/main.style.css -w"
   },

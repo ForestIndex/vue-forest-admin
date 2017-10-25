@@ -93,7 +93,7 @@ export default {
                     } else {
                         resolve(cookie);
                     }
-                }, 1500);
+                }, 3000);
             });
         },
         submit: async function() {

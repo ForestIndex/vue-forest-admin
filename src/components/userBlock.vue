@@ -128,7 +128,7 @@ $red: rgb(87.4%, 24.5%, 24.5%);
             <li>
                 <i class="fa fa-arrow-up" aria-hidden="true" v-on:click="move('up')"></i>
             </li>
-            <li class="small">order: {{ user.order + 1 || 'NA' }}</li>
+            <li class="small">order: {{ user.order + 1 || orderDisplay }}</li>
             <li>
                 <i class="fa fa-arrow-down" aria-hidden="true" v-on:click="move('down')"></i>
             </li>
@@ -170,7 +170,8 @@ export default {
             errService: false,
             errCategory: false,
             errCounties: false,
-            errorMessage: ''
+            errorMessage: '',
+            orderDisplay: 'Click the arrows to set order'
         };
     },
     watch: {
@@ -197,6 +198,11 @@ export default {
         },
         user: function() {
             this.start();
+        },
+        'user.order': function() {
+            console.log('watch!');
+            console.log(this.user.order);
+            orderDisplay = this.user.order + 1;
         },
         'user.info.businessName': function() {
             this.errBusName = false;
@@ -308,10 +314,14 @@ export default {
             }
         },
         move: function(direction) {
-            if (direction === 'up') {
-                this.user.order = this.user.order === 0 ? 0 : this.user.order - 1;
-            } else if (direction === 'down') {
-                this.user.order += 1;
+            console.log(direction);
+            if (!this.user.order) this.user.order = 0;
+            switch (direction) {
+                case 'up': this.user.order += 1;
+                    break;
+                case 'down':
+                    if (this.user.order > 0) this.user.order -= 1;
+                    else this.user.order = 0;
             }
         },
         start: function() {

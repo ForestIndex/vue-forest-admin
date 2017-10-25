@@ -76,6 +76,7 @@ export default {
                 username: '',
                 password: '',
                 active: true,
+                order: this.users.length,
                 info: {
                     images: [],
                     description: '',
