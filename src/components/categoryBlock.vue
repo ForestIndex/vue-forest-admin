@@ -69,7 +69,6 @@
 </li>
 </template>
 <script>
-import env from '../env';
 
 export default {
     data: () => {
@@ -91,9 +90,9 @@ export default {
             let res;
             // If the category doesn't exist, create one
             if (!this.category._id) {
-                res = await this.$http.post(`${this.API_HOST}/api/categories?token=${this.token}`, this.category);
+                res = await this.$http.post(`${process.env.API_HOST}/api/categories?token=${this.token}`, this.category);
             } else {
-                res = await this.$http.put(`${this.API_HOST}/api/categories/${this.category._id}?token=${this.token}`, this.category);
+                res = await this.$http.put(`${process.env.API_HOST}/api/categories/${this.category._id}?token=${this.token}`, this.category);
             }
             if (res.ok || res.status === 200) {
                 this.notifySaved();
@@ -113,7 +112,7 @@ export default {
             }, 2000);
         },
         deleteCat: async function() {
-            const res = await this.$http.delete(`${this.API_HOST}/api/categories/${this.category._id}`);
+            const res = await this.$http.delete(`${process.env.API_HOST}/api/categories/${this.category._id}`);
             if (res.ok || res.status === 200) {
                 this.$emit('refresh');
             } else {
@@ -123,8 +122,6 @@ export default {
         }
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
         if (!this.token) this.$router.push('login');
     }

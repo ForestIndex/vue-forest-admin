@@ -59,7 +59,6 @@
 </section>
 </template>
 <script>
-import env from '../env';
 import category from './categoryBlock.vue';
 
 export default {
@@ -81,7 +80,7 @@ export default {
     ],
     methods: {
         getCategories: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/categories`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/categories`);
             this.categories = res.body.filter((cat) => cat._service === this.service._id);
         },
         refresh: function() {
@@ -102,7 +101,7 @@ export default {
         },
         deleteService: async function() {
             if (this.service._id) {
-                const res = await this.$http.delete(`${this.API_HOST}/api/services/${this.service._id}?token=${this.token}`);
+                const res = await this.$http.delete(`${process.env.API_HOST}/api/services/${this.service._id}?token=${this.token}`);
                 if (!res.ok || res.status >= 400) {
                     alert('There was an issue deleting service.');
                 }
@@ -113,10 +112,10 @@ export default {
             let res;
             if (this.service._id && this.service._id >= 0) {
                 // update
-                res = await this.$http.put(`${this.API_HOST}/api/services/${this.service._id}/?token=${this.token}`, this.service);
+                res = await this.$http.put(`${process.env.API_HOST}/api/services/${this.service._id}/?token=${this.token}`, this.service);
             } else {
                 // create new
-                res = await this.$http.post(`${this.API_HOST}/api/services?token=${this.token}`, this.service);
+                res = await this.$http.post(`${process.env.API_HOST}/api/services?token=${this.token}`, this.service);
             }
             if (res.ok || res.status >= 200) {
                 this.notifyShowChanges();
@@ -128,8 +127,6 @@ export default {
         }
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
         this.getCategories();
     }

@@ -16,7 +16,6 @@
 </template>
 <script>
 import navigation from './navigation.vue';
-import env from '../env';
 
 export default {
     props: [
@@ -35,7 +34,7 @@ export default {
                 if (this.newPassword.length < 8) this.errorMessage = 'Password must be at least 8 characters.'
                 else if (this.newPassword !== this.checkPassword) this.errorMessage = 'Passwords do not match.'
                 else {
-                    this.$http.post(`${this.API_HOST}/api/users/${this.admin._id}?token=${this.token}`, { password: this.newPassword })
+                    this.$http.post(`${process.env.API_HOST}/api/users/${this.admin._id}?token=${this.token}`, { password: this.newPassword })
                     .then((res) => {
                         if (res.ok) {
                             this.showSaved = true;
@@ -64,8 +63,6 @@ export default {
         };
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
     }
 }

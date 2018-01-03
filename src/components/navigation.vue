@@ -1,6 +1,5 @@
 <style lang="scss">
 #nav {
-    // width: 100%;
     margin: 0;
     padding: 0;
     background-color: black;
@@ -25,9 +24,6 @@
             font-size: .9rem;
         }
     }
-    // .side-panel {
-    //     width: 500%;
-    // }
 }
 </style>
 <template>

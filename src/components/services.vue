@@ -9,7 +9,7 @@
     <ul class="col2 block left">
         <li class="col"><navigation /></li>
         <li class="col">
-            <img class="headerImg" src="./forestindex3.png"/>
+            <img class="headerImg" src="assets/forestindex3.png"/>
             <span class="small">{{ services.length }} Services </span><button class="submit" v-on:click="addService">Add Service</button>
             <ul>
                 <service v-bind:key="serv._id" v-for="serv in services" :service="serv" v-on:refresh="getServices"/>
@@ -21,7 +21,6 @@
 <script>
 import navigation from './navigation.vue';
 import service from './serviceBlock.vue';
-import env from '../env';
 
 export default {
     components: {
@@ -36,12 +35,12 @@ export default {
     },
     methods: {
         addService: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/services`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/services`);
             const num = res.body.length;
             this.services.push({ name: '', order: num });
         },
         getServices: async function() {
-            this.$http.get(`${this.API_HOST}/api/services`)
+            this.$http.get(`${process.env.API_HOST}/api/services`)
             .then((res) => {
                 this.services = res.body;
             }, (err) => {
@@ -54,8 +53,6 @@ export default {
         },
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.start();
     }
 }

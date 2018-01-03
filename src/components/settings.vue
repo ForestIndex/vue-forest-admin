@@ -18,7 +18,7 @@
     <ul class="col2 block">
         <li class="col"><navigation /></li>
         <li class="col" id="admins">
-            <img class="headerImg" src="./forestindex3.png"/>
+            <img class="headerImg" src="assets/forestindex3.png"/>
             <h2>Settings</h2>
             <button class="logout" v-on:click="logout">Logout</button>
             <ul>
@@ -30,7 +30,6 @@
 </template>
 <script>
 import navigation from './navigation.vue';
-import env from '../env';
 import block from './adminBlock.vue';
 
 export default {
@@ -40,7 +39,7 @@ export default {
     },
     methods: {
         getAdmins: function() {
-            this.$http.get(`${this.API_HOST}/api/admins?token=${this.token}`)
+            this.$http.get(`${process.env.API_HOST}/api/admins?token=${this.token}`)
             .then((res) => {
                 if (res.ok) {
                     this.admins = res.body.filter((a) => a.username !== 'sysadmin');
@@ -66,8 +65,6 @@ export default {
         };
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
         this.getAdmins();
     }

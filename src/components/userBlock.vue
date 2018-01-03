@@ -58,6 +58,20 @@ $red: rgb(87.4%, 24.5%, 24.5%);
 .errSubmit {
     border: .1rem solid $red;
 }
+.images {
+    width: 80%;
+    margin: .5%;
+    padding: 0;
+    li {
+        display: block;
+        width: 100%;
+        img {
+            width: 50%;
+            margin: 0 auto;
+            padding: 0;
+        }
+    }
+}
 </style>
 <template>
 <li class="user">
@@ -83,10 +97,10 @@ $red: rgb(87.4%, 24.5%, 24.5%);
         <input :class="{ errSubmit: errPhone }" type="text" v-model="user.info.phone" placeholder="Business contact phone" />
         
         <h4>Email</h4>
-        <input :class="{ errSubmit: errEmail }" type="text" v-model="user.info.email" placeholder="Business email address" />
+        <input type="text" v-model="user.info.email" placeholder="Business email address" />
 
         <h4>Address</h4>
-        <input :class="{ errSubmit: errStreet }" type="text" v-model="user.info.address.street" placeholder="Street address" />
+        <input type="text" v-model="user.info.address.street" placeholder="Street address" />
         <input :class="{ errSubmit: errCity }" type="text" v-model="user.info.address.city" placeholder="City" />
         <input :class="{ errSubmit: errZip }" type="text" v-model="user.info.address.zip" placeholder="Zipcode" />
         <select :class="{ errSubmit: errState }" v-model="selectedState">
@@ -124,6 +138,14 @@ $red: rgb(87.4%, 24.5%, 24.5%);
             </el-dropdown-menu>
         </el-dropdown> -->
 
+        <h5>Images:</h5>
+        <file-base64 v-bind:multiple="true" v-bind:done="uploadFiles"></file-base64>
+        <ul class="images">
+            <li v-for="image in images" :key="image">
+                <img :src="image" alt="">
+            </li>
+        </ul>
+
         <ul class="arrows">
             <li>
                 <i class="fa fa-arrow-up" aria-hidden="true" v-on:click="move('up')"></i>
@@ -145,11 +167,15 @@ $red: rgb(87.4%, 24.5%, 24.5%);
 </li>
 </template>
 <script>
-import env from '../env';
+import fileBase64 from 'vue-file-base64';
 
 export default {
+    components: {
+        fileBase64
+    },
     data: function() {
         return {
+            disabledUpload: true,
             token: null,
             showInfo: false,
             host: '',
@@ -164,14 +190,18 @@ export default {
             saved: false,
             errBusName: false,
             errCity: false,
+            errEmail: false,
             errZip: false,
             errDescr: false,
             errState: false,
+            errStreet: false,
+            errPhone: false,
             errService: false,
             errCategory: false,
             errCounties: false,
             errorMessage: '',
-            orderDisplay: 'Click the arrows to set order'
+            orderDisplay: 'Click the arrows to set order',
+            images: []
         };
     },
     watch: {
@@ -196,12 +226,7 @@ export default {
         selectedCounties: function() {
             this.user.info.operationalCounties = this.selectedCounties;
         },
-        user: function() {
-            this.start();
-        },
         'user.order': function() {
-            console.log('watch!');
-            console.log(this.user.order);
             orderDisplay = this.user.order + 1;
         },
         'user.info.businessName': function() {
@@ -215,6 +240,9 @@ export default {
         'user.info.address.zip': function() {
             this.errZip = false;
             this.badSubmit = false;
+        },
+        'user.info.address.street': function() {
+            // this.errStreet = false;
         },
         'user.info.description': function() {
             this.errDescr = false;
@@ -237,9 +265,6 @@ export default {
             this.user.active = !this.user.active;
             if (!this.showInfo) this.showInfo = true;
         },
-        refresh: function() {
-            this.$emit('refresh');
-        },
         validateForm: function() {
             if (!this.user.info.businessName || this.user.info.businessName.length < 1) {
                 this.errBusName = true;
@@ -253,6 +278,8 @@ export default {
             } else if (!this.user.info.address.state || !this.user.info.address.state._id) {
                 this.errState = true;
                 return false;
+            // } else if (!this.user.info.address.street || !this.user.info.address.street.length < 1) {
+                // this.errStreet = true;
             } else if (!this.user.info.description) {
                 this.errDescr = true;
                 return false;
@@ -278,10 +305,11 @@ export default {
 
                 payload.info.address.state = this.user.info.address.state._id;
                 payload.info.operationalCounties = this.selectedCounties;
+
                 const headers = { 'Content-Type': 'applications/json' };
                 const id = !!this.user._id ? `/${this.user._id}` : '';
                 const token = `?token=${this.token}`;
-                const url = `${this.host}/api/users${id}${token}`;
+                const url = `${process.env}/api/users${id}${token}`;
 
                 this.$http.post(url, payload, headers)
                 .then((res) => {
@@ -301,7 +329,7 @@ export default {
             }, 2000);
         },
         getCurrentCounties: async function() {
-            const res = await this.$http.get(`${this.host}/api/states/${this.user.info.address.state._id}/counties`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/states/${this.user.info.address.state._id}/counties`);
             this.currentCountOpts = res.body.map((county) => county);
         },
         selectCounty: function(county) {
@@ -314,7 +342,6 @@ export default {
             }
         },
         move: function(direction) {
-            console.log(direction);
             if (!this.user.order) this.user.order = 0;
             switch (direction) {
                 case 'up': this.user.order += 1;
@@ -323,6 +350,9 @@ export default {
                     if (this.user.order > 0) this.user.order -= 1;
                     else this.user.order = 0;
             }
+        },
+        refresh: function() {
+            this.$emit('refresh');
         },
         start: function() {
             this.currentCatOpts = this.categories.filter((cat) => cat._service === this.selectedService._id);
@@ -334,19 +364,42 @@ export default {
             };
             this.selectedState = this.user.info.address.state || sc;            
             this.getCurrentCounties();
+            this.images = this.user.info.images.map((image) => `${process.env.API_HOST}/api/images/${image}`);
             if (this.user.info.operationalCounties) {
                 this.selectedCounties = this.user.info.operationalCounties.map((county) => county._id);
             } else {
                 this.selectedCounties = [];
             }
+        },
+        uploadFiles: function(files) {
+            if (files.length > 0) {
+                const url = `${process.env.API_HOST}/api/upload`;
+                this.$http.post(url, files)
+                .then(successfulUpload, badUpload);
+            }
+
+            async function successfulUpload(res) {
+                res.body.forEach((fileName) => {
+                    this.user.info.images.push(fileName);
+                });
+                const updateUser = this.user;
+                const updateUrl = `${process.env.API_HOST}/api/users/${this.user._id}`;
+
+                await this.$http.post(updateUrl, updateUser);
+                this.$emit('refresh');
+                return Promise.resolve();
+            }
+
+            function badUpload(res) {
+                console.log(res);
+                this.errorMessage = res.body;
+            }
         }
     },
     created: function() {
-        const e = env();
-        this.host = `${e.API_HOST}`;
         this.token = this.$cookies.get('forestryservices');
         if (!this.token) this.$router.push('login');
-        if (this.user.info.businessName) this.start();
+        this.start();
     }
 }
 </script>

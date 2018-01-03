@@ -14,7 +14,6 @@
 </template>
 <script>
 import navigation from './navigation.vue';
-import env from '../env';
 
 export default {
     components: {
@@ -22,13 +21,10 @@ export default {
     },
     data: () => {
         return {
-            token: null,
-            API_HOST: null
+            token: null
         };
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
     }
 }

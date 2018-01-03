@@ -50,13 +50,11 @@
         <h5 class="error">{{ errMessage }}</h5>
 
         <button class="submit wide" v-on:click="submit" >Login</button>
-        <img v-if="loading" src="./loading_wheel.gif" alt="loading..."/>
+        <img v-if="loading" src="assets/loading_wheel.gif" alt="loading..."/>
     </form>
 </section>
 </template>
 <script>
-import env from '../env';
-
 export default {
     data: function() {
         return {
@@ -98,7 +96,7 @@ export default {
         },
         submit: async function() {
             this.loading = true;
-            const url = `${this.host}/api/login`;
+            const url = `${process.env.API_HOST}/api/login`;
             this.$http.post(url, this.login)
             .then((res) => {
                 if (res.body.token && res.ok) {
@@ -119,10 +117,6 @@ export default {
                 this.loading = false;
             });
         }
-    },
-    created: function() {
-        const e = env();
-        this.host = e.API_HOST;
     }
 }
 </script>

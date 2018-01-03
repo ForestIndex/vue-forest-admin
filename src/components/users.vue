@@ -27,12 +27,13 @@
     font-size: 1.3rem;
 }
 </style>
+
 <template>
 <section>
     <ul class="col2 block">
         <li class="col"><navigation /></li>
         <li class="col">
-            <img class="headerImg" src="./forestindex3.png"/>
+            <img class="headerImg" src="assets/forestindex3.png"/>
             <ul class="controls">
                 <li>
                     Showing {{ users.length }} of {{ users.length }}
@@ -42,7 +43,7 @@
                 </li>
             </ul>
             <h6 class="small center-msg" v-if="users.length < 1 && !loading">There are no users in the database. Press "Add User above to begin adding businesses."</h6>
-            <img v-if="loading" class="spinner" src="./loading_wheel.gif" alt="loading..."/>
+            <img v-if="loading" class="spinner" src="assets/loading_wheel.gif" alt="loading..."/>
             <user :states="states" :services="services" :categories="categories" v-on:refresh="getUsers" :key="user._id" v-for="user in users" :user="user"/>
         </li>
     </ul>
@@ -50,7 +51,6 @@
 </template>
 <script>
 import navigation from './navigation.vue';
-import env from '../env';
 import user from './userBlock.vue';
 
 export default {
@@ -65,7 +65,6 @@ export default {
         };
     },
     components: {
-        API_HOST: null,
         navigation: navigation,
         token: null,
         user: user
@@ -94,7 +93,7 @@ export default {
             this.users.splice(0, 0, newUser);
         },
         getUsers: async function() {
-            this.$http.get(`${this.API_HOST}/api/allusers?token=${this.token}`)
+            this.$http.get(`${process.env.API_HOST}/api/allusers?token=${this.token}`)
             .then((res) => {
                 if (res.ok) {
                     this.users = res.body.map((user) => user);
@@ -106,17 +105,17 @@ export default {
             });
         },
         getServices: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/services`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/services`);
             this.services = res.body.map((service) => service);
             return Promise.resolve();
         },
         getCategories: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/categories`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/categories`);
             this.categories = res.body.map((cat) => cat);
             return Promise.resolve();
         },
         getStates: async function() {
-            const res = await this.$http.get(`${this.API_HOST}/api/states`);
+            const res = await this.$http.get(`${process.env.API_HOST}/api/states`);
             this.states = res.body.map((state) => state);
             return Promise.resolve();
         },
@@ -129,8 +128,6 @@ export default {
         }
     },
     created: function() {
-        const e = env();
-        this.API_HOST = e.API_HOST;
         this.token = this.$cookies.get('forestryservices');
         this.controller();
     }
