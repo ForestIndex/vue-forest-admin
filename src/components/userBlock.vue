@@ -1,6 +1,15 @@
 <style lang="scss">
 $red: rgb(87.4%, 24.5%, 24.5%);
-
+.clickable {
+    &:hover {
+        cursor: pointer;
+    }
+}
+.redBtn {
+    border: none;
+    background-color: $red;
+    color: white;
+}
 .user {
     margin: 1% 0;
     padding: 1%;
@@ -129,20 +138,17 @@ $red: rgb(87.4%, 24.5%, 24.5%);
             <option :key="category._id" v-for="category in currentCatOpts" :value="category">{{ category.name || "none" }}</option>
         </select>
 
-         <!-- <el-dropdown>
-            <el-button type="primary">
-                {{ user._service.name || 'Select a service' }}<i class="el-icon-caret-bottom el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown" v-model="user._service.name">
-                <el-dropdown-item v-for="service in services">{{ service.name }}</el-dropdown-item>
-            </el-dropdown-menu>
-        </el-dropdown> -->
-
         <h5>Images:</h5>
         <file-base64 v-bind:multiple="true" v-bind:done="uploadFiles"></file-base64>
+        <h3 v-if="images.length === 0">No Images</h3>
         <ul class="images">
-            <li v-for="image in images" :key="image">
-                <img :src="image" alt="">
+            <li v-for="image in user.info.images" :key="image">
+                <img :src="baseUrl + '/api/images/' + image" alt="user.info.businessName">
+                <h6 class="errorText clickable" v-on:click="showDeleteImg = true;" v-if="!showDeleteImg">Delete Image</h6>
+                <div v-if="showDeleteImg">
+                    <button v-on:click="deleteImage(image)" class="redBtn">Delete</button>
+                    <button v-on:click="showDeleteImg = false;">Cancel</button>
+                </div>
             </li>
         </ul>
 
@@ -164,7 +170,9 @@ $red: rgb(87.4%, 24.5%, 24.5%);
     <span v-if="!user._id" class="small">pending changes</span>
     <span class="green" v-if="saved">Saved Changes <i class="fa fa-check" aria-hidden="true"></i></span>
     <span class="errorText">{{ errorMessage }}</span>
+    <span v-if="infoText && infoText.length > 0">{{ infoText }}</span>
 </li>
+
 </template>
 <script>
 import fileBase64 from 'vue-file-base64';
@@ -175,8 +183,8 @@ export default {
     },
     data: function() {
         return {
+            baseUrl: `${process.env.API_HOST}`,
             disabledUpload: true,
-            token: null,
             showInfo: false,
             host: '',
             currentCatOpts: [],
@@ -201,7 +209,9 @@ export default {
             errCounties: false,
             errorMessage: '',
             orderDisplay: 'Click the arrows to set order',
-            images: []
+            images: [],
+            showDeleteImg: false,
+            infoText: ''
         };
     },
     watch: {
@@ -307,9 +317,8 @@ export default {
                 payload.info.operationalCounties = this.selectedCounties;
 
                 const headers = { 'Content-Type': 'applications/json' };
-                const id = !!this.user._id ? `/${this.user._id}` : '';
-                const token = `?token=${this.token}`;
-                const url = `${process.env}/api/users${id}${token}`;
+                const id = (!!this.user && this.user._id !== 0 && this.user._id !== undefined) ? `/${this.user._id}` : '';
+                const url = `${process.env.API_HOST}/api/users${id}`;
 
                 this.$http.post(url, payload, headers)
                 .then((res) => {
@@ -329,8 +338,10 @@ export default {
             }, 2000);
         },
         getCurrentCounties: async function() {
-            const res = await this.$http.get(`${process.env.API_HOST}/api/states/${this.user.info.address.state._id}/counties`);
-            this.currentCountOpts = res.body.map((county) => county);
+            if (!!this.selectedState && !!this.selectedState._id) {
+                const res = await this.$http.get(`${process.env.API_HOST}/api/states/${this.selectedState._id}/counties`);
+                this.currentCountOpts = res.body.map((county) => county);
+            }
         },
         selectCounty: function(county) {
             const id = county._id;
@@ -354,8 +365,19 @@ export default {
         refresh: function() {
             this.$emit('refresh');
         },
+        deleteImage: function(fullUrl) {
+            const imageName = fullUrl.replace(`${process.env.API_HOST}/api/images/`, '');
+            const url = `${process.env.API_HOST}/api/users/${this.user._id}/images`;
+            const payLoad = { image: imageName };
+            this.$http.delete(url, { body: payLoad })
+            .then((res) => {
+                this.$emit('refresh');
+            }, (err) => {
+                console.log(err);
+            });
+        },
         start: function() {
-            this.currentCatOpts = this.categories.filter((cat) => cat._service === this.selectedService._id);
+            if (!!this.selectedService && !!this.selectedService._id) this.currentCatOpts = this.categories.filter((cat) => cat._service === this.selectedService._id);
             this.selectedCat = this.user._category;
             const sc = {
                 _id: 90,
@@ -372,33 +394,38 @@ export default {
             }
         },
         uploadFiles: function(files) {
+            this.errorMessage = '';
             if (files.length > 0) {
                 const url = `${process.env.API_HOST}/api/upload`;
                 this.$http.post(url, files)
                 .then(successfulUpload, badUpload);
             }
 
-            async function successfulUpload(res) {
+            function successfulUpload(res) {
                 res.body.forEach((fileName) => {
                     this.user.info.images.push(fileName);
                 });
                 const updateUser = this.user;
                 const updateUrl = `${process.env.API_HOST}/api/users/${this.user._id}`;
 
-                await this.$http.post(updateUrl, updateUser);
-                this.$emit('refresh');
-                return Promise.resolve();
+                this.$http.post(updateUrl, updateUser)
+                .then((res) => {
+                    this.$emit('refresh');
+                }, (err) => {
+                    console.log(err);
+                    this.errorMessage = 'There was an error upload files';
+                });
             }
 
             function badUpload(res) {
                 console.log(res);
-                this.errorMessage = res.body;
+                this.errorMessage = 'There was an error uploading image. It may be too large.';
             }
         }
     },
     created: function() {
-        this.token = this.$cookies.get('forestryservices');
-        if (!this.token) this.$router.push('login');
+        const token = this.$cookies.get('forestryservices');
+        if (!token) this.$router.push('login');
         this.start();
     }
 }

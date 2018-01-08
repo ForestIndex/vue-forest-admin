@@ -56,7 +56,6 @@ import user from './userBlock.vue';
 export default {
     data: () => {
         return {
-            token: null,
             loading: true,
             users: [],
             services: [],
@@ -66,12 +65,12 @@ export default {
     },
     components: {
         navigation: navigation,
-        token: null,
         user: user
     },
     methods: {
         addUser: function() {
             const newUser = {
+                _id: 0,
                 username: '',
                 password: '',
                 active: true,
@@ -93,7 +92,7 @@ export default {
             this.users.splice(0, 0, newUser);
         },
         getUsers: async function() {
-            this.$http.get(`${process.env.API_HOST}/api/allusers?token=${this.token}`)
+            this.$http.get(`${process.env.API_HOST}/api/allusers`)
             .then((res) => {
                 if (res.ok) {
                     this.users = res.body.map((user) => user);
@@ -118,18 +117,14 @@ export default {
             const res = await this.$http.get(`${process.env.API_HOST}/api/states`);
             this.states = res.body.map((state) => state);
             return Promise.resolve();
-        },
-        controller: function() {
-            return Promise.resolve()
-            .then(() => this.getServices())
-            .then(() => this.getCategories())
-            .then(() => this.getStates())
-            .then(() => this.getUsers());
         }
     },
     created: function() {
-        this.token = this.$cookies.get('forestryservices');
-        this.controller();
+        return Promise.resolve()
+        .then(() => this.getServices())
+        .then(() => this.getCategories())
+        .then(() => this.getStates())
+        .then(() => this.getUsers());
     }
 }
 </script>

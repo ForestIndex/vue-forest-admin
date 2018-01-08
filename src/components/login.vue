@@ -79,34 +79,19 @@ export default {
         }
     },
     methods: {
-        setCookie: function(token) {
-            return new Promise((resolve, reject) => {
-                const dt = new Date();
-                dt.setDate(dt.getDate() + 1);
-                this.$cookies.set('forestryservices', token, dt);
-                setTimeout(() => {
-                    const cookie = this.$cookies.isKey('forestryservices');
-                    if (!cookie) {
-                        reject();
-                    } else {
-                        resolve(cookie);
-                    }
-                }, 3000);
-            });
-        },
         submit: async function() {
             this.loading = true;
             const url = `${process.env.API_HOST}/api/login`;
             this.$http.post(url, this.login)
             .then((res) => {
                 if (res.body.token && res.ok) {
-                    this.setCookie(res.body.token)
-                    .then((token) => {
-                        this.$router.push('users');
-                    })
-                    .catch(() => {
-                        this.badLogin = true;
-                    });
+                    const token = res.body.token;
+                    const dt = new Date();
+                    dt.setDate(dt.getDate() + 1);
+                    this.$cookies.set('forestryservices', token, dt);
+                    setTimeout(() => {
+                        this.$router.push({ name: 'users' });
+                    }, 1000);
                 } else {
                     this.badLogin = true;
                     this.loading = false;
