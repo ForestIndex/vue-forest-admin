@@ -42,7 +42,7 @@
                     <button v-on:click="addUser">Add User</button>
                 </li>
             </ul>
-            <h6 class="small center-msg" v-if="users.length < 1 && !loading">There are no users in the database. Press "Add User above to begin adding businesses."</h6>
+            <h6 class="small center-msg" v-if="users.length < 1 && !loading">There are no users in the database. Press "Add User" above to begin adding businesses.</h6>
             <img v-if="loading" class="spinner" src="assets/loading_wheel.gif" alt="loading..."/>
             <user :states="states" :services="services" :categories="categories" v-on:refresh="getUsers" :key="user._id" v-for="user in users" :user="user"/>
         </li>
@@ -120,11 +120,13 @@ export default {
         }
     },
     created: function() {
-        return Promise.resolve()
-        .then(() => this.getServices())
-        .then(() => this.getCategories())
-        .then(() => this.getStates())
-        .then(() => this.getUsers());
+        const token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
+        if (!token) this.$router.push('login');
+
+        this.getServices();
+        this.getCategories();
+        this.getStates();
+        this.getUsers();
     }
 }
 </script>

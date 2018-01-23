@@ -51,7 +51,7 @@ export default {
             });
         },
         logout: function() {
-            this.$cookies.remove('forestryservices');
+            this.$cookies.remove(`${process.env.COOKIE_NAME}`);
             setTimeout(() => {
                 this.$router.push('login');
             }, 0);
@@ -65,7 +65,7 @@ export default {
         };
     },
     created: function() {
-        this.token = this.$cookies.get('forestryservices');
+        this.token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
         this.getAdmins();
     }
 }

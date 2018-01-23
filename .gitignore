@@ -1,7 +1,4 @@
 node_modules
 .vscode
-src/assets
-src/env.js
-dist/index.js
-dist/index.html
-dist/main.style.css
+dist
+*.env

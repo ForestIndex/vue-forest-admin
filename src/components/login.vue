@@ -79,7 +79,7 @@ export default {
         }
     },
     methods: {
-        submit: async function() {
+        submit: function() {
             this.loading = true;
             const url = `${process.env.API_HOST}/api/login`;
             this.$http.post(url, this.login)
@@ -88,10 +88,8 @@ export default {
                     const token = res.body.token;
                     const dt = new Date();
                     dt.setDate(dt.getDate() + 1);
-                    this.$cookies.set('forestryservices', token, dt);
-                    setTimeout(() => {
-                        this.$router.push({ name: 'users' });
-                    }, 1000);
+                    this.$cookies.set(`${process.env.COOKIE_NAME}`, token, dt);
+                    this.$router.push({ name: 'users' });
                 } else {
                     this.badLogin = true;
                     this.loading = false;

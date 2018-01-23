@@ -138,9 +138,9 @@ $red: rgb(87.4%, 24.5%, 24.5%);
             <option :key="category._id" v-for="category in currentCatOpts" :value="category">{{ category.name || "none" }}</option>
         </select>
 
-        <h5>Images:</h5>
-        <file-base64 v-bind:multiple="true" v-bind:done="uploadFiles"></file-base64>
-        <h3 v-if="images.length === 0">No Images</h3>
+        <h5 v-if="!!user._id">Images:</h5>
+        <file-base64 h5 v-if="!!user._id" v-bind:multiple="true" v-bind:done="uploadFiles"></file-base64>
+        <h3 v-if="images.length === 0 && !!user._id">No Images</h3>
         <ul class="images">
             <li v-for="image in user.info.images" :key="image">
                 <img :src="baseUrl + '/api/images/' + image" alt="user.info.businessName">
@@ -424,7 +424,7 @@ export default {
         }
     },
     created: function() {
-        const token = this.$cookies.get('forestryservices');
+        const token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
         if (!token) this.$router.push('login');
         this.start();
     }
