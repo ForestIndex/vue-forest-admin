@@ -30,9 +30,6 @@
 <template>
 <section>
     <li class="serviceBlock">
-        <button class="delete right" v-on:click="deleteService">Delete Category</button>
-        <button class="blueBtn right" v-on:click="save">Save Changes</button>
-        <div class="small" v-on:click="refresh">Refresh</div>
         <h2>{{ service.name }}</h2>
         <span v-on:click="editName=!editName" class="small"><i class="fa fa-pencil" aria-hidden="true"></i> Name</span>
         <input v-if="editName" type="text" v-model="service.name" placeholder="Service name" />
@@ -55,6 +52,9 @@
             </li>
         </ul>
         <span class="green" v-if="showSaved">Saved Changes <i class="fa fa-check" aria-hidden="true"></i></span>
+        <button class="delete right" v-on:click="deleteService">Delete Category</button>
+        <button class="blueBtn right" v-on:click="save">Save Changes</button>
+        <div class="small clickable" v-on:click="refresh">Refresh</div>
     </li>
 </section>
 </template>

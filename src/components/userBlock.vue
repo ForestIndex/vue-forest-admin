@@ -341,6 +341,7 @@ export default {
             if (!!this.selectedState && !!this.selectedState._id) {
                 const res = await this.$http.get(`${process.env.API_HOST}/api/states/${this.selectedState._id}/counties`);
                 this.currentCountOpts = res.body.map((county) => county);
+                console.log(res);
             }
         },
         selectCounty: function(county) {

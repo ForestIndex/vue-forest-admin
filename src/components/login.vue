@@ -79,16 +79,13 @@ export default {
         }
     },
     methods: {
-        submit: function() {
+        submit: function(e) {
+            e.preventDefault();
             this.loading = true;
             const url = `${process.env.API_HOST}/api/login`;
             this.$http.post(url, this.login)
             .then((res) => {
                 if (res.body.token && res.ok) {
-                    const token = res.body.token;
-                    const dt = new Date();
-                    dt.setDate(dt.getDate() + 1);
-                    this.$cookies.set(`${process.env.COOKIE_NAME}`, token, dt);
                     this.$router.push({ name: 'users' });
                 } else {
                     this.badLogin = true;

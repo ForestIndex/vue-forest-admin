@@ -43,6 +43,7 @@ export default {
             this.$http.get(`${process.env.API_HOST}/api/services`)
             .then((res) => {
                 this.services = res.body;
+                console.log(this.services);
             }, (err) => {
                 console.log(err);
                 this.$router.push('login');
