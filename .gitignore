@@ -1,5 +1,6 @@
 node_modules
 .vscode
 dist
-*.env
+dev.env
+prod.env
 .DS_Store
