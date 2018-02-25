@@ -94,7 +94,7 @@ export default {
         getUsers: async function() {
             this.$http.get(`${process.env.API_HOST}/api/allusers`)
             .then((res) => {
-                if (res.ok) {
+                if (res.status === 200) {
                     this.users = res.body.map((user) => user);
                     this.loading = false;
                 }
@@ -120,7 +120,7 @@ export default {
         }
     },
     created: function() {
-        const token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
+        const token = window.localStorage.getItem(process.env.COOKIE_NAME);
         if (!token) this.$router.push('login');
 
         this.getServices();

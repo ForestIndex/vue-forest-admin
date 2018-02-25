@@ -63,7 +63,7 @@ export default {
         };
     },
     created: function() {
-        this.token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
+        this.token = window.localStorage.getItem(process.env.COOKIE_NAME);
     }
 }
 </script>

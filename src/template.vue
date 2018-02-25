@@ -25,7 +25,7 @@ export default {
         };
     },
     created: function() {
-        this.token = this.$cookies.get('forestryservices');
+        this.token = window.localStorage.getItem(process.env.COOKIE_NAME);
     }
 }
 </script>

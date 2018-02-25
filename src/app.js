@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueResource from 'vue-resource';
 import fastClick from 'fastclick';
-import vueCookies from 'vue-cookies';
 
 import users from './components/users.vue';
 import login from './components/login.vue';
@@ -10,12 +9,18 @@ import services from './components/services.vue';
 import settings from './components/settings.vue';
 
 Vue.use(VueRouter);
-Vue.use(vueCookies);
 Vue.use(VueResource);
 
 Vue.http.interceptors.push((request, next) => {
-    request.credentials = true;
-    request.headers['Authorization'] = 'Bearer: ' + localStorage.getItem('forestryservices');
+    let token = window.localStorage.getItem(process.env.COOKIE_NAME);
+    // console.log(request.url);
+    // console.log(token);
+    if (token) {
+        request.headers = request.headers || {};
+        request.credentials = true;
+        request.headers.set('Accept', 'application/json');
+        request.headers.set('Authorization', `${process.env.COOKIE_NAME}=${token}`);
+    }
     next();
 });
 

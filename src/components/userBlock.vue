@@ -102,6 +102,9 @@ $red: rgb(87.4%, 24.5%, 24.5%);
         <h4>Business Name</h4>
         <input :class="{ errSubmit: errBusName }" type="text" v-model="user.info.businessName" placeholder="Enter a business name" />
 
+        <h4>Website Url</h4>
+        <input :class="" type="text" v-model="user.info.websiteUrl" placeholder="URL of a website (i.e. https://google.com)"/>
+
         <h4>Phone</h4>
         <input :class="{ errSubmit: errPhone }" type="text" v-model="user.info.phone" placeholder="Business contact phone" />
         
@@ -425,7 +428,7 @@ export default {
         }
     },
     created: function() {
-        const token = this.$cookies.get(`${process.env.COOKIE_NAME}`);
+        const token = window.localStorage.getItem(process.env.COOKIE_NAME);
         if (!token) this.$router.push('login');
         this.start();
     }

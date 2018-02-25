@@ -38,6 +38,10 @@
     padding: 1%;
     text-align: center;
 }
+.halfWidth {
+    width: 50%;
+    margin: .5% auto;
+}
 </style>
 <template>
 <section class="fullScreen">
@@ -45,11 +49,12 @@
         <h3>Forest Index Admin Login</h3>
         <input type="text" v-model="login.username" placeholder="Email or username" />
         <input type="password" v-model="login.password" placeholder="Password" />
-        
+
         <h5 v-if="badLogin" class="error">Invalid Credentials</h5>
         <h5 class="error">{{ errMessage }}</h5>
 
         <button class="submit wide" v-on:click="submit" >Login</button>
+        <!-- <div class="clickable submit halfWidth" v-on:click="submit">Login</div> -->
         <img v-if="loading" src="assets/loading_wheel.gif" alt="loading..."/>
     </form>
 </section>
@@ -86,7 +91,10 @@ export default {
             this.$http.post(url, this.login)
             .then((res) => {
                 if (res.body.token && res.ok) {
-                    this.$router.push({ name: 'users' });
+                    localStorage.setItem(process.env.COOKIE_NAME, res.body.token);
+                    setTimeout(() => {
+                        this.$router.push({ name: 'users' });
+                    }, 3000);
                 } else {
                     this.badLogin = true;
                     this.loading = false;
